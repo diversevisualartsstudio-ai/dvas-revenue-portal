@@ -1,589 +1,77 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>DVAS Revenue Portal</title>
-    <style>
-      :root {
-        --bg: #07111f;
-        --panel: #0f1b2d;
-        --panel-alt: #13253f;
-        --primary: #8be9fd;
-        --accent: #50fa7b;
-        --warning: #f1fa8c;
-        --danger: #ff5555;
-        --muted: #9db5c7;
-        --text: #edf6ff;
-        --border: rgba(255,255,255,0.08);
-      }
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101725">
+  <meta name="description" content="Revenue and operations dashboard for Diverse Visual Arts Studio LLC.">
+  <title>Revenue overview | DVAS</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="config.js"></script>
+  <script type="module" src="app.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to dashboard</a>
+  <div class="app-shell">
+    <header class="topbar">
+      <a class="brand" href="#overview" aria-label="DVAS Revenue Portal home"><span class="brand-mark" aria-hidden="true">DV</span><span><strong>DVAS</strong><small>Revenue portal</small></span></a>
+      <nav class="main-nav" aria-label="Main navigation">
+        <a class="active" href="#overview">Overview</a><a href="#pipeline">Pipeline</a><a href="#security">Security</a>
+      </nav>
+      <div class="header-actions">
+        <span id="data-mode" class="mode-badge">Demo data</span>
+        <button id="theme-toggle" class="icon-button" type="button" aria-label="Switch to light theme" title="Toggle color theme">☼</button>
+        <button id="sign-out" class="button button-quiet hidden" type="button">Sign out</button>
+      </div>
+    </header>
 
-      * { box-sizing: border-box; }
+    <main id="main">
+      <section id="auth-panel" class="auth-panel card hidden" aria-labelledby="auth-title">
+        <div><p class="eyebrow">Private workspace</p><h1 id="auth-title">Sign in to your portal</h1><p class="muted">Use your authorized DVAS account to access revenue data.</p></div>
+        <form id="login-form" class="login-form">
+          <label for="email">Work email</label><input id="email" name="email" type="email" autocomplete="username" required>
+          <label for="password">Password</label><input id="password" name="password" type="password" autocomplete="current-password" required>
+          <button class="button button-primary" type="submit">Sign in</button>
+          <p id="auth-message" class="form-message" role="alert"></p>
+        </form>
+      </section>
 
-      body {
-        margin: 0;
-        font-family: Inter, "Segoe UI", sans-serif;
-        background: linear-gradient(180deg, #050b14 0%, #0d1625 100%);
-        color: var(--text);
-      }
-
-      .container {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 32px 20px 64px;
-      }
-
-      .topbar {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 16px;
-        padding: 18px 0 28px;
-      }
-
-      .brand {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        font-weight: 700;
-        letter-spacing: 0.04em;
-      }
-
-      .brand-mark {
-        width: 36px;
-        height: 36px;
-        border-radius: 10px;
-        background: linear-gradient(135deg, var(--primary), #7f5af0);
-        display: grid;
-        place-items: center;
-        color: #07111f;
-        font-weight: 900;
-      }
-
-      .nav {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 12px;
-        color: var(--muted);
-      }
-
-      .nav a {
-        color: var(--muted);
-        text-decoration: none;
-        padding: 8px 12px;
-        border-radius: 999px;
-        border: 1px solid transparent;
-      }
-
-      .nav a:hover {
-        color: var(--text);
-        border-color: var(--border);
-        background: rgba(255,255,255,.02);
-      }
-
-      .hero {
-        display: grid;
-        grid-template-columns: 1.2fr .8fr;
-        gap: 24px;
-        margin-top: 12px;
-      }
-
-      .card {
-        background: rgba(15,27,45,0.9);
-        border: 1px solid var(--border);
-        border-radius: 20px;
-        box-shadow: 0 20px 40px rgba(0,0,0,0.18);
-      }
-
-      .hero-copy {
-        padding: 32px;
-      }
-
-      .eyebrow {
-        display: inline-block;
-        padding: 6px 10px;
-        border-radius: 999px;
-        font-size: 12px;
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
-        background: rgba(139,233,253,0.12);
-        color: var(--primary);
-        border: 1px solid rgba(139,233,253,0.2);
-      }
-
-      h1 {
-        font-size: clamp(2.2rem, 5vw, 4rem);
-        line-height: 1.08;
-        margin: 18px 0 14px;
-      }
-
-      .lead {
-        color: var(--muted);
-        font-size: 1.04rem;
-        max-width: 62ch;
-        line-height: 1.7;
-      }
-
-      .cta-row {
-        display: flex;
-        flex-wrap: wrap;
-        margin-top: 24px;
-        gap: 12px;
-      }
-
-      .button {
-        display: inline-block;
-        padding: 12px 18px;
-        border-radius: 12px;
-        font-weight: 700;
-        text-decoration: none;
-        border: 1px solid rgba(255,255,255,0.06);
-      }
-
-      .button.primary {
-        background: linear-gradient(135deg, var(--primary), #7fd3ff);
-        color: #06151f;
-      }
-
-      .button.secondary {
-        background: rgba(255,255,255,0.02);
-        color: var(--text);
-      }
-
-      .hero-panel {
-        padding: 24px;
-      }
-
-      .mini-label {
-        color: var(--muted);
-        font-size: 12px;
-        text-transform: uppercase;
-        letter-spacing: 0.1em;
-      }
-
-      .stat-hero {
-        font-size: 3rem;
-        font-weight: 800;
-        margin: 12px 0 10px;
-      }
-
-      .trend {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        background: rgba(80,250,123,0.1);
-        color: var(--accent);
-        border: 1px solid rgba(80,250,123,0.2);
-        border-radius: 999px;
-        padding: 7px 10px;
-        font-weight: 600;
-        font-size: 0.85rem;
-      }
-
-      .status-stack {
-        margin-top: 22px;
-        display: grid;
-        gap: 14px;
-      }
-
-      .status-row {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 10px;
-        padding: 14px 14px;
-        border: 1px solid var(--border);
-        border-radius: 12px;
-        background: rgba(255,255,255,0.02);
-      }
-
-      .status-meta {
-        color: var(--muted);
-        font-size: 0.9rem;
-      }
-
-      .pulse {
-        width: 10px;
-        height: 10px;
-        border-radius: 50%;
-        display: inline-block;
-        background: var(--accent);
-        box-shadow: 0 0 0 6px rgba(80,250,123,0.1);
-      }
-
-      .metrics {
-        display: grid;
-        grid-template-columns: repeat(4, minmax(180px, 1fr));
-        gap: 18px;
-        margin-top: 26px;
-      }
-
-      .metric {
-        padding: 20px 18px;
-      }
-
-      .metric .value {
-        font-size: 2rem;
-        font-weight: 800;
-        margin-top: 10px;
-      }
-
-      .metric .label {
-        color: var(--muted);
-        margin-top: 8px;
-      }
-
-      .section {
-        margin-top: 30px;
-      }
-
-      .section-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 12px;
-        margin-bottom: 16px;
-      }
-
-      .section-header h2 {
-        margin: 0;
-        font-size: 1.3rem;
-      }
-
-      .tag {
-        color: var(--primary);
-        border: 1px solid rgba(139,233,253,0.2);
-        background: rgba(139,233,253,0.08);
-        border-radius: 999px;
-        padding: 6px 10px;
-        font-size: 12px;
-        letter-spacing: 0.06em;
-        text-transform: uppercase;
-      }
-
-      .grid-2 {
-        display: grid;
-        grid-template-columns: 1.1fr .9fr;
-        gap: 18px;
-      }
-
-      .list-card {
-        padding: 20px;
-      }
-
-      .pipeline {
-        list-style: none;
-        margin: 0;
-        padding: 0;
-        display: grid;
-        gap: 12px;
-      }
-
-      .pipeline li {
-        display: grid;
-        grid-template-columns: 52px 1fr auto;
-        gap: 12px;
-        align-items: center;
-        padding: 12px 14px;
-        border: 1px solid var(--border);
-        border-radius: 12px;
-        background: rgba(255,255,255,0.02);
-      }
-
-      .step {
-        width: 38px;
-        height: 38px;
-        border-radius: 12px;
-        display: grid;
-        place-items: center;
-        background: rgba(139,233,253,0.08);
-        color: var(--primary);
-        font-weight: 700;
-      }
-
-      .amount {
-        color: var(--warning);
-        font-weight: 700;
-      }
-
-      table {
-        width: 100%;
-        border-collapse: collapse;
-      }
-
-      th, td {
-        text-align: left;
-        padding: 14px 10px;
-        border-bottom: 1px solid var(--border);
-      }
-
-      th {
-        color: var(--muted);
-        font-weight: 600;
-      }
-
-      .risk-low { color: var(--accent); font-weight: 700; }
-      .risk-mid { color: var(--warning); font-weight: 700; }
-      .risk-high { color: var(--danger); font-weight: 700; }
-
-      .footer {
-        margin-top: 34px;
-        padding-top: 20px;
-        color: var(--muted);
-        font-size: 0.92rem;
-        border-top: 1px solid var(--border);
-      }
-
-      @media (max-width: 880px) {
-        .hero, .grid-2, .metrics {
-          grid-template-columns: 1fr;
-        }
-
-        .topbar {
-          flex-direction: column;
-          align-items: flex-start;
-        }
-      }
-    </style>
-  </head>
-  <body>
-    <div class="container">
-      <header class="topbar">
-        <div class="brand">
-          <div class="brand-mark">DV</div>
-          <span>DVAS Revenue Portal</span>
+      <section id="dashboard" aria-labelledby="page-title">
+        <div class="page-heading" id="overview">
+          <div><p class="eyebrow">Revenue intelligence</p><h1 id="page-title">Good overview.</h1><p class="muted">Track business performance, pipeline health, and operational risk.</p></div>
+          <div class="heading-controls"><label class="sr-only" for="range-select">Dashboard time range</label><select id="range-select"><option value="30">Last 30 days</option><option value="90">Last 90 days</option><option value="365" selected>Last 12 months</option></select><button id="refresh-button" class="button button-secondary" type="button">↻ <span>Refresh</span></button></div>
         </div>
-        <nav class="nav" aria-label="Main navigation">
-          <a href="#overview">Overview</a>
-          <a href="#pipeline">Pipeline</a>
-          <a href="#security">Security</a>
-          <a href="#team">Team</a>
-        </nav>
-      </header>
-
-      <main>
-        <section class="hero">
-          <div class="card hero-copy">
-            <span class="eyebrow">AI Revenue Intelligence</span>
-            <h1>Monitor revenue, trust, and growth in one secure command center.</h1>
-            <p class="lead">
-              DVAS combines financial visibility, AI operational health, and security posture to help leadership move faster with confidence.
-            </p>
-            <div class="cta-row">
-              <a class="button primary" href="#pipeline">Review pipeline</a>
-              <a class="button secondary" href="#security">View compliance</a>
-            </div>
-          </div>
-
-          <aside class="card hero-panel">
-            <div class="mini-label">Current performance</div>
-            <div class="stat-hero">$2.42M</div>
-            <div class="trend">▲ 18.4% vs last quarter</div>
-
-            <div class="status-stack">
-              <div class="status-row">
-                <div>
-                  <div class="status-meta">AI system health</div>
-                </div>
-                <div><span class="pulse"></span> Stable</div>
-              </div>
-              <div class="status-row">
-                <div>
-                  <div class="status-meta">Security posture</div>
-                </div>
-                <div>Tier 1</div>
-              </div>
-              <div class="status-row">
-                <div>
-                  <div class="status-meta">Forecast confidence</div>
-                </div>
-                <div>94%</div>
-              </div>
-            </div>
-          </aside>
+        <div id="notice" class="notice hidden" role="status" aria-live="polite"></div>
+        <div id="error-state" class="error-state hidden" role="alert"><div><strong>We couldn’t load dashboard data.</strong><p id="error-message">Check your connection and try again.</p></div><button id="retry-button" class="button button-secondary" type="button">Try again</button></div>
+        <section class="metrics" aria-label="Key performance indicators" aria-busy="false">
+          <article class="card metric-card"><div class="metric-top"><span class="metric-label">Recognized revenue</span><span class="metric-icon" aria-hidden="true">$</span></div><p id="kpi-revenue" class="metric-value">—</p><p class="metric-foot">For selected period</p></article>
+          <article class="card metric-card"><div class="metric-top"><span class="metric-label">Active clients</span><span class="metric-icon" aria-hidden="true">♙</span></div><p id="kpi-clients" class="metric-value">—</p><p class="metric-foot">Current accounts</p></article>
+          <article class="card metric-card"><div class="metric-top"><span class="metric-label">Open pipeline</span><span class="metric-icon" aria-hidden="true">↗</span></div><p id="kpi-pipeline" class="metric-value">—</p><p class="metric-foot">Open opportunities</p></article>
+          <article class="card metric-card"><div class="metric-top"><span class="metric-label">Security checks</span><span class="metric-icon" aria-hidden="true">◇</span></div><p id="kpi-security" class="metric-value">—</p><p id="security-foot" class="metric-foot">Controls requiring action</p></article>
         </section>
 
-        <section class="metrics" id="overview" aria-label="KPI overview">
-          <div class="card metric">
-            <div class="mini-label">Monthly recurring</div>
-            <div class="value">$684K</div>
-            <div class="label">MRR</div>
-          </div>
-          <div class="card metric">
-            <div class="mini-label">Active clients</div>
-            <div class="value">34</div>
-            <div class="label">Enterprise accounts</div>
-          </div>
-          <div class="card metric">
-            <div class="mini-label">Win rate</div>
-            <div class="value">31%</div>
-            <div class="label">Qualified pipeline</div>
-          </div>
-          <div class="card metric">
-            <div class="mini-label">Risk score</div>
-            <div class="value">12</div>
-            <div class="label">Low risk index</div>
-          </div>
+        <section class="content-grid">
+          <article class="card panel chart-panel" aria-labelledby="chart-title">
+            <div class="panel-heading"><div><h2 id="chart-title">Revenue trend</h2><p class="muted">Recognized revenue over time</p></div><span class="chart-legend"><i aria-hidden="true"></i> Revenue</span></div>
+            <div id="chart-wrap" class="chart-wrap" aria-live="polite"><div id="revenue-chart" role="img" aria-label="Revenue chart"></div></div>
+            <p id="chart-summary" class="sr-only"></p>
+          </article>
+          <article class="card panel pipeline-panel" id="pipeline" aria-labelledby="pipeline-title">
+            <div class="panel-heading"><div><h2 id="pipeline-title">Pipeline by stage</h2><p class="muted">Open opportunities</p></div></div>
+            <div id="pipeline-summary" class="stage-list" aria-live="polite"></div>
+          </article>
         </section>
 
-        <section class="section" id="pipeline">
-          <div class="section-header">
-            <h2>Revenue pipeline</h2>
-            <span class="tag">Q4 focus</span>
-          </div>
-
-          <div class="grid-2">
-            <div class="card list-card">
-              <ul class="pipeline">
-                <li>
-                  <div class="step">01</div>
-                  <div>
-                    <strong>Enterprise expansion</strong><br />
-                    <span class="status-meta">Crestline Studios</span>
-                  </div>
-                  <div class="amount">$420K</div>
-                </li>
-                <li>
-                  <div class="step">02</div>
-                  <div>
-                    <strong>AI risk automation</strong><br />
-                    <span class="status-meta">Northwest Media Group</span>
-                  </div>
-                  <div class="amount">$310K</div>
-                </li>
-                <li>
-                  <div class="step">03</div>
-                  <div>
-                    <strong>Security compliance suite</strong><br />
-                    <span class="status-meta">Helio Labs</span>
-                  </div>
-                  <div class="amount">$280K</div>
-                </li>
-              </ul>
-            </div>
-
-            <div class="card list-card">
-              <table aria-label="Revenue table">
-                <thead>
-                  <tr>
-                    <th>Account</th>
-                    <th>Stage</th>
-                    <th>Value</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td>Northwest</td>
-                    <td>Proposal</td>
-                    <td>$310K</td>
-                  </tr>
-                  <tr>
-                    <td>Helio</td>
-                    <td>Negotiation</td>
-                    <td>$280K</td>
-                  </tr>
-                  <tr>
-                    <td>Crestline</td>
-                    <td>Expansion</td>
-                    <td>$420K</td>
-                  </tr>
-                  <tr>
-                    <td>NovaWorks</td>
-                    <td>Discovery</td>
-                    <td>$145K</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
+        <section class="card panel table-panel" aria-labelledby="opportunities-title">
+          <div class="panel-heading table-heading"><div><h2 id="opportunities-title">Recent opportunities</h2><p class="muted">Search, filter, and sort your pipeline</p></div><div class="table-controls"><label class="search-box"><span class="sr-only">Search opportunities</span><span aria-hidden="true">⌕</span><input id="search-input" type="search" placeholder="Search accounts or deals…"></label><label class="sr-only" for="stage-filter">Filter by stage</label><select id="stage-filter"><option value="all">All stages</option><option value="lead">Lead</option><option value="qualified">Qualified</option><option value="proposal">Proposal</option><option value="negotiation">Negotiation</option><option value="won">Won</option><option value="lost">Lost</option></select></div></div>
+          <div class="table-scroll"><table><caption class="sr-only">Revenue opportunities. Activate column headings to sort.</caption><thead><tr><th scope="col"><button class="sort-button" data-sort="title" type="button">Opportunity <span aria-hidden="true">↕</span></button></th><th scope="col"><button class="sort-button" data-sort="client" type="button">Account <span aria-hidden="true">↕</span></button></th><th scope="col"><button class="sort-button" data-sort="stage" type="button">Stage <span aria-hidden="true">↕</span></button></th><th scope="col"><button class="sort-button" data-sort="amount" type="button">Amount <span aria-hidden="true">↕</span></button></th><th scope="col"><button class="sort-button" data-sort="close" type="button">Expected close <span aria-hidden="true">↕</span></button></th></tr></thead><tbody id="opportunities-body"></tbody></table></div>
+          <div id="empty-state" class="empty-state hidden"><span aria-hidden="true">⌕</span><strong>No matching opportunities</strong><p>Try another search or clear the stage filter.</p><button id="clear-filters" class="button button-secondary" type="button">Clear filters</button></div>
         </section>
 
-        <section class="section" id="security">
-          <div class="section-header">
-            <h2>Security and compliance</h2>
-            <span class="tag">Protected</span>
-          </div>
-
-          <div class="grid-2">
-            <div class="card list-card">
-              <table aria-label="Security status table">
-                <thead>
-                  <tr>
-                    <th>Control</th>
-                    <th>Status</th>
-                    <th>Owner</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td>Access review</td>
-                    <td class="risk-low">Healthy</td>
-                    <td>Security</td>
-                  </tr>
-                  <tr>
-                    <td>Data encryption</td>
-                    <td class="risk-low">Compliant</td>
-                    <td>Platform</td>
-                  </tr>
-                  <tr>
-                    <td>AI governance</td>
-                    <td class="risk-mid">Monitor</td>
-                    <td>Ops</td>
-                  </tr>
-                  <tr>
-                    <td>Third-party audit</td>
-                    <td class="risk-high">Action</td>
-                    <td>Legal</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-
-            <div class="card list-card">
-              <h3>Priority actions</h3>
-              <ul class="pipeline">
-                <li>
-                  <div class="step">A</div>
-                  <div>
-                    <strong>Vendor attestation</strong><br />
-                    <span class="status-meta">Review and approve Q4 vendors</span>
-                  </div>
-                  <div class="status-meta">Due today</div>
-                </li>
-                <li>
-                  <div class="step">B</div>
-                  <div>
-                    <strong>AI access policy</strong><br />
-                    <span class="status-meta">Enforce least-privilege controls</span>
-                  </div>
-                  <div class="status-meta">2 days</div>
-                </li>
-                <li>
-                  <div class="step">C</div>
-                  <div>
-                    <strong>Revenue alerting</strong><br />
-                    <span class="status-meta">Tune anomaly detection</span>
-                  </div>
-                  <div class="status-meta">3 days</div>
-                </li>
-              </ul>
-            </div>
-          </div>
-        </section>
-
-        <footer class="footer" id="team">
-          Diverse Visual Arts Studio LLC • Revenue operations dashboard • Updated <span id="today"></span>
-        </footer>
-      </main>
-    </div>
-
-    <script>
-      const today = new Date();
-      document.getElementById('today').textContent = today.toLocaleDateString(undefined, {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric'
-      });
-    </script>
-  </body>
+        <section class="card panel security-panel" id="security" aria-labelledby="security-title"><div class="panel-heading"><div><h2 id="security-title">Security and compliance</h2><p class="muted">Control status from your workspace</p></div><span id="security-status" class="status-pill">—</span></div><div id="security-list" class="security-list" aria-live="polite"></div></section>
+        <footer class="footer">Diverse Visual Arts Studio LLC <span>•</span> <span id="updated-at">Dashboard data is not connected</span></footer>
+      </section>
+    </main>
+  </div>
+</body>
 </html>

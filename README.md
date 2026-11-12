@@ -1,38 +1,24 @@
 # DVAS Revenue Portal
 
-Static landing page and dashboard prototype for Diverse Visual Arts Studio LLC.
+Mobile-first revenue dashboard and landing-page foundation for Diverse Visual Arts Studio LLC.
 
 ## Run locally
 
-Open `index.html` in a browser, or serve the repository root:
+Serve the repository root with `python3 -m http.server 8000`, then open <http://localhost:8000>. The portal displays clearly labeled sample data until configured with Supabase.
 
-```bash
-python3 -m http.server 8000
-```
+## Dashboard UX
 
-Then visit <http://localhost:8000>.
+The current interface includes responsive layouts, revenue time ranges and chart, pipeline stage summaries, opportunity search/filter/sort, loading and retry states, empty states, a dark/light theme toggle, and keyboard/screen-reader affordances. The included sample data is illustrative and must not be presented as company financial results.
 
-## Supabase backend foundation
+## Connect Supabase
 
-A starter Postgres schema is in `supabase/migrations/202611120001_initial_schema.sql`. It defines organization-scoped clients, opportunities, revenue records, security checks, audit logs, roles, and row-level security policies. Supabase Auth provides user identity; the database policies restrict each user to organizations where they are a member.
+1. Apply `supabase/migrations/202611120001_initial_schema.sql` to your Supabase project.
+2. Add the project URL, publishable/anon key, and organization UUID to `config.js`.
+3. Set up Supabase Auth users and bootstrap the first organization/admin through a trusted server-side process. Configure redirect URLs and verify RLS policies before inviting users.
+4. Open the dashboard and sign in. The UI queries `clients`, `opportunities`, `revenue_records`, and `security_checks` for the configured organization.
 
-### Setup
+`config.js` contains browser-safe public configuration only. Never put a Supabase service-role key, Stripe secret, CRM token, or any other integration secret in client-side files. RLS is essential; the public/anon key alone is not data access protection.
 
-1. Create a Supabase project and install the Supabase CLI.
-2. Link this repository to your project with `supabase link`.
-3. Apply the migration with `supabase db push`.
-4. Bootstrap the first organization and admin membership through a trusted, server-side process. Do not allow public signup to assign admin roles. The migration deliberately does not create a default organization or admin.
-5. Configure authentication providers and allowed redirect URLs in the Supabase dashboard.
-6. Connect the app using the Supabase project URL and publishable/anon key. Never put the service-role key in browser code.
+## Data and deployment safety
 
-This commits a database/auth foundation, not a fully connected UI: the existing `index.html` remains a static dashboard and still contains demonstration values. Replace those values with authenticated queries only after the project is configured, an initial admin is bootstrapped, and end-to-end authorization has been tested. Do not use real financial or customer data on public GitHub Pages.
-
-## Data integrations
-
-Stripe, Google Sheets, Airtable, and CRM/ERP providers require credentials and account-specific field mappings. Those credentials must be stored as server-side Supabase Function secrets, never committed to this repository or exposed in the browser. The current schema includes `source` and `external_ref` fields to support idempotent imports. Stripe and Airtable can be connected using their APIs; Google Sheets requires a service account or OAuth setup. “CRM/ERP” is not a single API—choose the specific vendor (for example, Salesforce, HubSpot, or NetSuite) and define field mappings before enabling a connector.
-
-No external service is connected by this starter. Before enabling sync, implement and test each server-side connector, verify webhook signatures where applicable, restrict sync actions to admins, and decide how deletes, refunds, currency conversion, duplicate records, and historical imports should be handled.
-
-## GitHub Pages deployment
-
-The static site can be hosted on GitHub Pages after adding a Pages workflow and selecting **Settings → Pages → Build and deployment → GitHub Actions**. GitHub Pages publishes a public static site; it cannot protect sensitive dashboard data. Enable **Enforce HTTPS** in Pages settings once available. For a custom domain, configure the DNS records GitHub specifies, wait for certificate provisioning, then enable HTTPS.
+This is a static frontend; a Supabase schema and client-side reads are not a complete production backend or admin-entry workflow. The UI currently supports read-only data views and email/password sign-in. Admin editing, integration connectors, production monitoring, automated accessibility checks, and end-to-end testing still need implementation. GitHub Pages is public hosting: do not publish real financial or customer data there. Host the authenticated dashboard on an appropriate private app deployment and test authorization before use.
