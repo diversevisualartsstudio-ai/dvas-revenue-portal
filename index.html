@@ -1,1 +1,589 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DVAS Revenue Portal</title>
+    <style>
+      :root {
+        --bg: #07111f;
+        --panel: #0f1b2d;
+        --panel-alt: #13253f;
+        --primary: #8be9fd;
+        --accent: #50fa7b;
+        --warning: #f1fa8c;
+        --danger: #ff5555;
+        --muted: #9db5c7;
+        --text: #edf6ff;
+        --border: rgba(255,255,255,0.08);
+      }
 
+      * { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        font-family: Inter, "Segoe UI", sans-serif;
+        background: linear-gradient(180deg, #050b14 0%, #0d1625 100%);
+        color: var(--text);
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 32px 20px 64px;
+      }
+
+      .topbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+        padding: 18px 0 28px;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+      }
+
+      .brand-mark {
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+        background: linear-gradient(135deg, var(--primary), #7f5af0);
+        display: grid;
+        place-items: center;
+        color: #07111f;
+        font-weight: 900;
+      }
+
+      .nav {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        color: var(--muted);
+      }
+
+      .nav a {
+        color: var(--muted);
+        text-decoration: none;
+        padding: 8px 12px;
+        border-radius: 999px;
+        border: 1px solid transparent;
+      }
+
+      .nav a:hover {
+        color: var(--text);
+        border-color: var(--border);
+        background: rgba(255,255,255,.02);
+      }
+
+      .hero {
+        display: grid;
+        grid-template-columns: 1.2fr .8fr;
+        gap: 24px;
+        margin-top: 12px;
+      }
+
+      .card {
+        background: rgba(15,27,45,0.9);
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.18);
+      }
+
+      .hero-copy {
+        padding: 32px;
+      }
+
+      .eyebrow {
+        display: inline-block;
+        padding: 6px 10px;
+        border-radius: 999px;
+        font-size: 12px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        background: rgba(139,233,253,0.12);
+        color: var(--primary);
+        border: 1px solid rgba(139,233,253,0.2);
+      }
+
+      h1 {
+        font-size: clamp(2.2rem, 5vw, 4rem);
+        line-height: 1.08;
+        margin: 18px 0 14px;
+      }
+
+      .lead {
+        color: var(--muted);
+        font-size: 1.04rem;
+        max-width: 62ch;
+        line-height: 1.7;
+      }
+
+      .cta-row {
+        display: flex;
+        flex-wrap: wrap;
+        margin-top: 24px;
+        gap: 12px;
+      }
+
+      .button {
+        display: inline-block;
+        padding: 12px 18px;
+        border-radius: 12px;
+        font-weight: 700;
+        text-decoration: none;
+        border: 1px solid rgba(255,255,255,0.06);
+      }
+
+      .button.primary {
+        background: linear-gradient(135deg, var(--primary), #7fd3ff);
+        color: #06151f;
+      }
+
+      .button.secondary {
+        background: rgba(255,255,255,0.02);
+        color: var(--text);
+      }
+
+      .hero-panel {
+        padding: 24px;
+      }
+
+      .mini-label {
+        color: var(--muted);
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+      }
+
+      .stat-hero {
+        font-size: 3rem;
+        font-weight: 800;
+        margin: 12px 0 10px;
+      }
+
+      .trend {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(80,250,123,0.1);
+        color: var(--accent);
+        border: 1px solid rgba(80,250,123,0.2);
+        border-radius: 999px;
+        padding: 7px 10px;
+        font-weight: 600;
+        font-size: 0.85rem;
+      }
+
+      .status-stack {
+        margin-top: 22px;
+        display: grid;
+        gap: 14px;
+      }
+
+      .status-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+        padding: 14px 14px;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        background: rgba(255,255,255,0.02);
+      }
+
+      .status-meta {
+        color: var(--muted);
+        font-size: 0.9rem;
+      }
+
+      .pulse {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        display: inline-block;
+        background: var(--accent);
+        box-shadow: 0 0 0 6px rgba(80,250,123,0.1);
+      }
+
+      .metrics {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(180px, 1fr));
+        gap: 18px;
+        margin-top: 26px;
+      }
+
+      .metric {
+        padding: 20px 18px;
+      }
+
+      .metric .value {
+        font-size: 2rem;
+        font-weight: 800;
+        margin-top: 10px;
+      }
+
+      .metric .label {
+        color: var(--muted);
+        margin-top: 8px;
+      }
+
+      .section {
+        margin-top: 30px;
+      }
+
+      .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 16px;
+      }
+
+      .section-header h2 {
+        margin: 0;
+        font-size: 1.3rem;
+      }
+
+      .tag {
+        color: var(--primary);
+        border: 1px solid rgba(139,233,253,0.2);
+        background: rgba(139,233,253,0.08);
+        border-radius: 999px;
+        padding: 6px 10px;
+        font-size: 12px;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+      }
+
+      .grid-2 {
+        display: grid;
+        grid-template-columns: 1.1fr .9fr;
+        gap: 18px;
+      }
+
+      .list-card {
+        padding: 20px;
+      }
+
+      .pipeline {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: grid;
+        gap: 12px;
+      }
+
+      .pipeline li {
+        display: grid;
+        grid-template-columns: 52px 1fr auto;
+        gap: 12px;
+        align-items: center;
+        padding: 12px 14px;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        background: rgba(255,255,255,0.02);
+      }
+
+      .step {
+        width: 38px;
+        height: 38px;
+        border-radius: 12px;
+        display: grid;
+        place-items: center;
+        background: rgba(139,233,253,0.08);
+        color: var(--primary);
+        font-weight: 700;
+      }
+
+      .amount {
+        color: var(--warning);
+        font-weight: 700;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      th, td {
+        text-align: left;
+        padding: 14px 10px;
+        border-bottom: 1px solid var(--border);
+      }
+
+      th {
+        color: var(--muted);
+        font-weight: 600;
+      }
+
+      .risk-low { color: var(--accent); font-weight: 700; }
+      .risk-mid { color: var(--warning); font-weight: 700; }
+      .risk-high { color: var(--danger); font-weight: 700; }
+
+      .footer {
+        margin-top: 34px;
+        padding-top: 20px;
+        color: var(--muted);
+        font-size: 0.92rem;
+        border-top: 1px solid var(--border);
+      }
+
+      @media (max-width: 880px) {
+        .hero, .grid-2, .metrics {
+          grid-template-columns: 1fr;
+        }
+
+        .topbar {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <header class="topbar">
+        <div class="brand">
+          <div class="brand-mark">DV</div>
+          <span>DVAS Revenue Portal</span>
+        </div>
+        <nav class="nav" aria-label="Main navigation">
+          <a href="#overview">Overview</a>
+          <a href="#pipeline">Pipeline</a>
+          <a href="#security">Security</a>
+          <a href="#team">Team</a>
+        </nav>
+      </header>
+
+      <main>
+        <section class="hero">
+          <div class="card hero-copy">
+            <span class="eyebrow">AI Revenue Intelligence</span>
+            <h1>Monitor revenue, trust, and growth in one secure command center.</h1>
+            <p class="lead">
+              DVAS combines financial visibility, AI operational health, and security posture to help leadership move faster with confidence.
+            </p>
+            <div class="cta-row">
+              <a class="button primary" href="#pipeline">Review pipeline</a>
+              <a class="button secondary" href="#security">View compliance</a>
+            </div>
+          </div>
+
+          <aside class="card hero-panel">
+            <div class="mini-label">Current performance</div>
+            <div class="stat-hero">$2.42M</div>
+            <div class="trend">▲ 18.4% vs last quarter</div>
+
+            <div class="status-stack">
+              <div class="status-row">
+                <div>
+                  <div class="status-meta">AI system health</div>
+                </div>
+                <div><span class="pulse"></span> Stable</div>
+              </div>
+              <div class="status-row">
+                <div>
+                  <div class="status-meta">Security posture</div>
+                </div>
+                <div>Tier 1</div>
+              </div>
+              <div class="status-row">
+                <div>
+                  <div class="status-meta">Forecast confidence</div>
+                </div>
+                <div>94%</div>
+              </div>
+            </div>
+          </aside>
+        </section>
+
+        <section class="metrics" id="overview" aria-label="KPI overview">
+          <div class="card metric">
+            <div class="mini-label">Monthly recurring</div>
+            <div class="value">$684K</div>
+            <div class="label">MRR</div>
+          </div>
+          <div class="card metric">
+            <div class="mini-label">Active clients</div>
+            <div class="value">34</div>
+            <div class="label">Enterprise accounts</div>
+          </div>
+          <div class="card metric">
+            <div class="mini-label">Win rate</div>
+            <div class="value">31%</div>
+            <div class="label">Qualified pipeline</div>
+          </div>
+          <div class="card metric">
+            <div class="mini-label">Risk score</div>
+            <div class="value">12</div>
+            <div class="label">Low risk index</div>
+          </div>
+        </section>
+
+        <section class="section" id="pipeline">
+          <div class="section-header">
+            <h2>Revenue pipeline</h2>
+            <span class="tag">Q4 focus</span>
+          </div>
+
+          <div class="grid-2">
+            <div class="card list-card">
+              <ul class="pipeline">
+                <li>
+                  <div class="step">01</div>
+                  <div>
+                    <strong>Enterprise expansion</strong><br />
+                    <span class="status-meta">Crestline Studios</span>
+                  </div>
+                  <div class="amount">$420K</div>
+                </li>
+                <li>
+                  <div class="step">02</div>
+                  <div>
+                    <strong>AI risk automation</strong><br />
+                    <span class="status-meta">Northwest Media Group</span>
+                  </div>
+                  <div class="amount">$310K</div>
+                </li>
+                <li>
+                  <div class="step">03</div>
+                  <div>
+                    <strong>Security compliance suite</strong><br />
+                    <span class="status-meta">Helio Labs</span>
+                  </div>
+                  <div class="amount">$280K</div>
+                </li>
+              </ul>
+            </div>
+
+            <div class="card list-card">
+              <table aria-label="Revenue table">
+                <thead>
+                  <tr>
+                    <th>Account</th>
+                    <th>Stage</th>
+                    <th>Value</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Northwest</td>
+                    <td>Proposal</td>
+                    <td>$310K</td>
+                  </tr>
+                  <tr>
+                    <td>Helio</td>
+                    <td>Negotiation</td>
+                    <td>$280K</td>
+                  </tr>
+                  <tr>
+                    <td>Crestline</td>
+                    <td>Expansion</td>
+                    <td>$420K</td>
+                  </tr>
+                  <tr>
+                    <td>NovaWorks</td>
+                    <td>Discovery</td>
+                    <td>$145K</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <section class="section" id="security">
+          <div class="section-header">
+            <h2>Security and compliance</h2>
+            <span class="tag">Protected</span>
+          </div>
+
+          <div class="grid-2">
+            <div class="card list-card">
+              <table aria-label="Security status table">
+                <thead>
+                  <tr>
+                    <th>Control</th>
+                    <th>Status</th>
+                    <th>Owner</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Access review</td>
+                    <td class="risk-low">Healthy</td>
+                    <td>Security</td>
+                  </tr>
+                  <tr>
+                    <td>Data encryption</td>
+                    <td class="risk-low">Compliant</td>
+                    <td>Platform</td>
+                  </tr>
+                  <tr>
+                    <td>AI governance</td>
+                    <td class="risk-mid">Monitor</td>
+                    <td>Ops</td>
+                  </tr>
+                  <tr>
+                    <td>Third-party audit</td>
+                    <td class="risk-high">Action</td>
+                    <td>Legal</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="card list-card">
+              <h3>Priority actions</h3>
+              <ul class="pipeline">
+                <li>
+                  <div class="step">A</div>
+                  <div>
+                    <strong>Vendor attestation</strong><br />
+                    <span class="status-meta">Review and approve Q4 vendors</span>
+                  </div>
+                  <div class="status-meta">Due today</div>
+                </li>
+                <li>
+                  <div class="step">B</div>
+                  <div>
+                    <strong>AI access policy</strong><br />
+                    <span class="status-meta">Enforce least-privilege controls</span>
+                  </div>
+                  <div class="status-meta">2 days</div>
+                </li>
+                <li>
+                  <div class="step">C</div>
+                  <div>
+                    <strong>Revenue alerting</strong><br />
+                    <span class="status-meta">Tune anomaly detection</span>
+                  </div>
+                  <div class="status-meta">3 days</div>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <footer class="footer" id="team">
+          Diverse Visual Arts Studio LLC • Revenue operations dashboard • Updated <span id="today"></span>
+        </footer>
+      </main>
+    </div>
+
+    <script>
+      const today = new Date();
+      document.getElementById('today').textContent = today.toLocaleDateString(undefined, {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+      });
+    </script>
+  </body>
+</html>
